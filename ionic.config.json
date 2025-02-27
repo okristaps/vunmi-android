@@ -1,0 +1,7 @@
+{
+  "name": "vunmi-android",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
