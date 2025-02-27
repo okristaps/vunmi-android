@@ -1,25 +1,32 @@
 <template>
   <ion-page>
-    <ion-header translucent="true">
+    <ion-header :translucent="true">
       <ion-toolbar>
         <ion-title>Sunmi Printer Demo</ion-title>
       </ion-toolbar>
     </ion-header>
 
-    <ion-content fullscreen="true">
-      <div id="container" style="padding: 16px;">
-        <div v-if="printerConnected">
-          <p>Printer connected!</p>
-          <ion-button @click="printHelloWorld">
-            Print "Hello World"
-          </ion-button>
-        </div>
-        <div v-else>
-          <p>Connecting to printer...</p>
-          <p v-if="connectionError" style="color: red;">
+    <ion-content :fullscreen="true">
+
+      <ion-header collapse="condense">
+        <ion-toolbar>
+          <ion-title size="large">Sunmi Printer Demo</ion-title>
+        </ion-toolbar>
+      </ion-header>
+
+      <div id="container">
+        <p v-if="printerConnected" class="status connected">
+          Printer connected!
+        </p>
+        <p v-else class="status connecting">
+          Test build? Connecting to printer...
+          <span v-if="connectionError" class="error">
             Error: {{ connectionError }}
-          </p>
-        </div>
+          </span>
+        </p>
+        <ion-button @click="printHelloWorld" class="print-btn">
+          Print "Hello World"
+        </ion-button>
       </div>
     </ion-content>
   </ion-page>
@@ -27,15 +34,14 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import {SunmiPrinter} from '@kduma-autoid/capacitor-sunmi-printer'
-
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton } from '@ionic/vue'
+import { SunmiPrinter } from '@kduma-autoid/capacitor-sunmi-printer'
 
 const printerConnected = ref(false)
 const connectionError = ref('')
 
 async function bindPrinterService() {
   try {
-    // bind service?
     await SunmiPrinter.bindService()
     printerConnected.value = true
     console.log("Printer service bound successfully")
@@ -55,7 +61,52 @@ async function printHelloWorld() {
 }
 
 onMounted(() => {
-  //bind on mount
   bindPrinterService()
 })
 </script>
+
+<style scoped>
+#container {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 56px); 
+  background: #f9f9f9;
+  text-align: center;
+}
+
+.status {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.connected {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.connecting {
+  color: #555;
+}
+
+.error {
+  color: #d32f2f;
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+.print-btn {
+  --background: #1976d2;
+  --color: #fff;
+  --border-radius: 8px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  --padding-start: 24px;
+  --padding-end: 24px;
+  font-size: 1rem;
+  text-transform: none;
+}
+</style>
