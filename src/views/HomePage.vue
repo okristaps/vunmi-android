@@ -1,56 +1,61 @@
 <template>
   <ion-page>
-    <ion-header :translucent="true">
+    <ion-header translucent="true">
       <ion-toolbar>
-        <ion-title>Blank</ion-title>
+        <ion-title>Sunmi Printer Demo</ion-title>
       </ion-toolbar>
     </ion-header>
 
-    <ion-content :fullscreen="true">
-      <ion-header collapse="condense">
-        <ion-toolbar>
-          <ion-title size="large">Blank</ion-title>
-        </ion-toolbar>
-      </ion-header>
-
-      <div id="container">
-        <strong>Ready to create an app?</strong>
-        <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+    <ion-content fullscreen="true">
+      <div id="container" style="padding: 16px;">
+        <div v-if="printerConnected">
+          <p>Printer connected!</p>
+          <ion-button @click="printHelloWorld">
+            Print "Hello World"
+          </ion-button>
+        </div>
+        <div v-else>
+          <p>Connecting to printer...</p>
+          <p v-if="connectionError" style="color: red;">
+            Error: {{ connectionError }}
+          </p>
+        </div>
       </div>
     </ion-content>
   </ion-page>
 </template>
 
-<script setup lang="ts">
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
+<script setup>
+import { ref, onMounted } from 'vue'
+import {SunmiPrinter} from '@kduma-autoid/capacitor-sunmi-printer'
+
+
+const printerConnected = ref(false)
+const connectionError = ref('')
+
+async function bindPrinterService() {
+  try {
+    // bind service?
+    await SunmiPrinter.bindService()
+    printerConnected.value = true
+    console.log("Printer service bound successfully")
+  } catch (error) {
+    connectionError.value = error.message || 'Unknown error'
+    console.error("Error binding to printer service:", error)
+  }
+}
+
+async function printHelloWorld() {
+  try {
+    await SunmiPrinter.printText({ text: "Hello World" })
+    console.log("Printed: Hello World")
+  } catch (error) {
+    console.error("Error printing text:", error)
+  }
+}
+
+onMounted(() => {
+  //bind on mount
+  bindPrinterService()
+})
 </script>
-
-<style scoped>
-#container {
-  text-align: center;
-  
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
-}
-
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-  
-  color: #8c8c8c;
-  
-  margin: 0;
-}
-
-#container a {
-  text-decoration: none;
-}
-</style>
