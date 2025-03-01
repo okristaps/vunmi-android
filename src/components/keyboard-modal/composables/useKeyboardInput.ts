@@ -1,16 +1,39 @@
 import { ref } from "vue";
 import type { Ref } from "vue";
 
-export function useKeyboardInput() {
+export type InputMode = "free" | "restricted";
+
+interface KeyboardConfig {
+  mode: InputMode;
+}
+
+export function useKeyboardInput(config: KeyboardConfig) {
   const amount: Ref<string> = ref("");
   const maxLength = 10;
 
+  const isValidInput = (currentValue: string, newDigit: string): boolean => {
+    if (config.mode === "free") return true;
+
+    //  restricted mode (only numbers ending in 0 or 5)
+    const newValue = currentValue + newDigit;
+    if (newValue.length === 1) return true; //  any first digit
+    return newValue.endsWith("0") || newValue.endsWith("5");
+  };
+
   const addDigit = (digit: string): void => {
-    // handle special case for '00'
-    if (digit === "00" && amount.value.length + 2 <= maxLength) {
-      amount.value += digit;
-    } else if (digit.length === 1 && amount.value.length < maxLength) {
-      amount.value += digit;
+    // handle special case  '00'
+    if (digit === "00") {
+      if (amount.value.length + 2 <= maxLength && isValidInput(amount.value, "00")) {
+        amount.value += digit;
+      }
+      return;
+    }
+
+    // handle single digits
+    if (digit.length === 1 && amount.value.length < maxLength) {
+      if (isValidInput(amount.value, digit)) {
+        amount.value += digit;
+      }
     }
   };
 

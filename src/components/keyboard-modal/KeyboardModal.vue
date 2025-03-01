@@ -45,14 +45,21 @@
   </ion-modal>
 </template>
 
+<script lang="ts">
+export default {
+  name: 'KeyboardModal'
+}
+</script>
+
 <script setup lang="ts">
 import { IonModal, IonIcon } from '@ionic/vue';
 import { closeOutline, backspaceOutline } from 'ionicons/icons';
-import { useKeyboardInput } from './composables/useKeyboardInput';
+import { useKeyboardInput, type InputMode } from './composables/useKeyboardInput';
 import { computed } from 'vue';
 
 interface Props {
   isOpen: boolean;
+  mode?: InputMode;
 }
 
 interface Emits {
@@ -60,16 +67,22 @@ interface Emits {
   (e: 'charge', amount: number): void;
 }
 
-defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  mode: 'free'
+});
+
 const emit = defineEmits<Emits>();
 
-const { amount, addDigit, backspace, formatAmount } = useKeyboardInput();
+const { amount, addDigit, backspace, formatAmount } = useKeyboardInput({
+  mode: props.mode
+});
 
 const formattedAmount = computed(() => formatAmount(amount.value));
 
 const handleClose = () => emit('update:isOpen', false);
 
 const handleCharge = () => {
+  if (!amount.value) return;
   const numericAmount = parseFloat(amount.value) / 100;
   emit('charge', numericAmount);
   handleClose();

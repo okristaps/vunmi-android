@@ -14,39 +14,55 @@
       </ion-header>
 
       <div id="container">
-        <ion-button @click="openKeyboard" class="print-btn">
-          Enter Amount to Print
+        <ion-button @click="openFreeKeyboard" class="print-btn">
+          Enter Any Amount
+        </ion-button>
+        
+        <ion-button @click="openRestrictedKeyboard" class="print-btn restricted">
+          Enter Amount (0.05 steps)
         </ion-button>
       </div>
 
       <keyboard-modal
-        v-model:is-open="isKeyboardOpen"
+        v-model:is-open="isFreeKeyboardOpen"
+        mode="free"
+        @charge="handleCharge"
+      />
+
+      <keyboard-modal
+        v-model:is-open="isRestrictedKeyboardOpen"
+        mode="restricted"
         @charge="handleCharge"
       />
     </ion-content>
   </ion-page>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { ref } from 'vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton } from '@ionic/vue';
+import { SunmiPrinter } from '@kduma-autoid/capacitor-sunmi-printer';
+import KeyboardModal from '../components/keyboard-modal/KeyboardModal.vue';
 
-import { SunmiPrinter } from '@kduma-autoid/capacitor-sunmi-printer'
-import KeyboardModal from '../components/keyboard-modal/KeyboardModal.vue'
+const isFreeKeyboardOpen = ref(false);
+const isRestrictedKeyboardOpen = ref(false);
 
-const isKeyboardOpen = ref(false)
+const openFreeKeyboard = () => {
+  isFreeKeyboardOpen.value = true;
+};
 
-const openKeyboard = () => {
-  isKeyboardOpen.value = true
-}
+const openRestrictedKeyboard = () => {
+  isRestrictedKeyboardOpen.value = true;
+};
 
-const handleCharge = async (amount) => {
+const handleCharge = async (amount: number) => {
   try {
-    await SunmiPrinter.printText({ text: `Amount: CHF ${amount.toFixed(2)}` })
-    console.log(`Printed amount: CHF ${amount.toFixed(2)}`)
+    await SunmiPrinter.printText({ text: `Amount: CHF ${amount.toFixed(2)}` });
+    console.log(`Printed amount: CHF ${amount.toFixed(2)}`);
   } catch (error) {
-    console.error("Error printing amount:", error)
+    console.error("Error printing amount:", error);
   }
-}
+};
 </script>
 
 <style scoped>
@@ -71,5 +87,11 @@ const handleCharge = async (amount) => {
   font-size: 1.1rem;
   text-transform: none;
   margin-top: 12px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.print-btn.restricted {
+  --background: #27ae60;
 }
 </style> 
