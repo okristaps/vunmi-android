@@ -24,9 +24,14 @@
             Error: {{ connectionError }}
           </span>
         </p>
-        <ion-button @click="printHelloWorld" class="print-btn">
-          Print "Hello World"
-        </ion-button>
+        <div class="button-container">
+          <ion-button @click="printHelloWorld" class="print-btn">
+            Print "Hello World"
+          </ion-button>
+          <ion-button @click="goToPrintAmount" class="print-btn">
+            Print Amount
+          </ion-button>
+        </div>
       </div>
     </ion-content>
   </ion-page>
@@ -36,9 +41,15 @@
 import { ref, onMounted } from 'vue'
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton } from '@ionic/vue'
 import { SunmiPrinter } from '@kduma-autoid/capacitor-sunmi-printer'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const printerConnected = ref(false)
 const connectionError = ref('')
+
+const goToPrintAmount = () => {
+  router.push('/print-amount')
+}
 
 async function bindPrinterService() {
   try {
@@ -108,5 +119,13 @@ onMounted(() => {
   --padding-end: 24px;
   font-size: 1rem;
   text-transform: none;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 300px;
 }
 </style>

@@ -1,0 +1,91 @@
+.keyboard-container {
+  flex: 1;
+  display: flex;
+}
+
+.main-grid {
+  display: flex;
+  gap: 8px;
+  height: 100%;
+}
+
+.numpad-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+}
+
+.side-buttons {
+  width: 100px;
+  display: grid;
+  grid-template-rows: repeat(2, 1fr);
+}
+
+.grid-cell {
+  background: #2f3241;
+  border: none;
+  color: white;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  user-select: none;
+}
+
+.grid-cell:active {
+  background: #3b3d4a;
+}
+
+.delete-btn {
+  background: #2f3241;
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 24px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.delete-btn:active {
+  background: #3b3d4a;
+}
+
+.ok-cell {
+  background: #27ae60;
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  text-transform: uppercase;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ok-cell:active {
+  background: #219a52;
+}
+
+.charge-btn {
+  height: 64px;
+  background: #1e2027;
+  color: white;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.double-zero {
+  grid-column: span 2;
+} 
