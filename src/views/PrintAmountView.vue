@@ -38,31 +38,53 @@
   </ion-page>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue';
+<script>
+import { ref, defineComponent } from 'vue';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton } from '@ionic/vue';
 import { SunmiPrinter } from '@kduma-autoid/capacitor-sunmi-printer';
 import KeyboardModal from '../components/keyboard-modal/KeyboardModal.vue';
 
-const isFreeKeyboardOpen = ref(false);
-const isRestrictedKeyboardOpen = ref(false);
+export default defineComponent({
+  name: 'PrintAmountView',
+  components: {
+    IonPage,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonButton,
+    KeyboardModal
+  },
+  setup() {
+    const isFreeKeyboardOpen = ref(false);
+    const isRestrictedKeyboardOpen = ref(false);
 
-const openFreeKeyboard = () => {
-  isFreeKeyboardOpen.value = true;
-};
+    const openFreeKeyboard = () => {
+      isFreeKeyboardOpen.value = true;
+    };
 
-const openRestrictedKeyboard = () => {
-  isRestrictedKeyboardOpen.value = true;
-};
+    const openRestrictedKeyboard = () => {
+      isRestrictedKeyboardOpen.value = true;
+    };
 
-const handleCharge = async (amount: number) => {
-  try {
-    await SunmiPrinter.printText({ text: `Amount: CHF ${amount.toFixed(2)}` });
-    console.log(`Printed amount: CHF ${amount.toFixed(2)}`);
-  } catch (error) {
-    console.error("Error printing amount:", error);
+    const handleCharge = async (amount) => {
+      try {
+        await SunmiPrinter.printText({ text: `Amount: CHF ${amount.toFixed(2)}` });
+        console.log(`Printed amount: CHF ${amount.toFixed(2)}`);
+      } catch (error) {
+        console.error("Error printing amount:", error);
+      }
+    };
+
+    return {
+      isFreeKeyboardOpen,
+      isRestrictedKeyboardOpen,
+      openFreeKeyboard,
+      openRestrictedKeyboard,
+      handleCharge
+    };
   }
-};
+});
 </script>
 
 <style scoped>
