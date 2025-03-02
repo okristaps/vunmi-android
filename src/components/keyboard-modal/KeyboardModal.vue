@@ -45,48 +45,58 @@
   </ion-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'KeyboardModal'
-}
-</script>
-
-<script setup lang="ts">
+<script>
 import { IonModal, IonIcon } from '@ionic/vue';
 import { closeOutline, backspaceOutline } from 'ionicons/icons';
-import { useKeyboardInput, type InputMode } from './composables/useKeyboardInput';
-import { computed } from 'vue';
+import { useKeyboardInput } from './composables/useKeyboardInput';
+import { computed, defineComponent } from 'vue';
 
-interface Props {
-  isOpen: boolean;
-  mode?: InputMode;
-}
+export default defineComponent({
+  name: 'KeyboardModal',
+  components: {
+    IonModal,
+    IonIcon
+  },
+  props: {
+    isOpen: {
+      type: Boolean,
+      required: true
+    },
+    mode: {
+      type: String,
+      default: 'free',
+      validator: (value) => ['free', 'restricted'].includes(value)
+    }
+  },
+  emits: ['update:isOpen', 'charge'],
+  setup(props, { emit }) {
+    const { amount, addDigit, backspace, formatAmount } = useKeyboardInput({
+      mode: props.mode
+    });
 
-interface Emits {
-  (e: 'update:isOpen', value: boolean): void;
-  (e: 'charge', amount: number): void;
-}
+    const formattedAmount = computed(() => formatAmount(amount.value));
 
-const props = withDefaults(defineProps<Props>(), {
-  mode: 'free'
+    const handleClose = () => emit('update:isOpen', false);
+
+    const handleCharge = () => {
+      if (!amount.value) return;
+      const numericAmount = parseFloat(amount.value) / 100;
+      emit('charge', numericAmount);
+      handleClose();
+    };
+
+    return {
+      amount,
+      addDigit,
+      backspace,
+      formattedAmount,
+      handleClose,
+      handleCharge,
+      closeOutline,
+      backspaceOutline
+    };
+  }
 });
-
-const emit = defineEmits<Emits>();
-
-const { amount, addDigit, backspace, formatAmount } = useKeyboardInput({
-  mode: props.mode
-});
-
-const formattedAmount = computed(() => formatAmount(amount.value));
-
-const handleClose = () => emit('update:isOpen', false);
-
-const handleCharge = () => {
-  if (!amount.value) return;
-  const numericAmount = parseFloat(amount.value) / 100;
-  emit('charge', numericAmount);
-  handleClose();
-};
 </script>
 
 <style scoped>
