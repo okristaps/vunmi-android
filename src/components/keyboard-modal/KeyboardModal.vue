@@ -15,7 +15,7 @@
       </div>
 
       <div class="amount-row">
-        <div class="amount-label">
+        <div class="amount-label" :class="{ 'invalid': !isValidAmount && mode === 'restricted' }">
           <span class="amount-prefix">CHF</span>
           <span class="amount-value">{{ formattedAmount }}</span>
         </div>
@@ -38,7 +38,13 @@
           <div class="delete-btn" @click="backspace">
             <ion-icon :icon="backspaceOutline" />
           </div>
-          <div class="ok-cell" @click="handleCharge">OK</div>
+          <div 
+            class="ok-cell" 
+            :class="{ 'invalid': !isValidAmount && mode === 'restricted' }"
+            @click="handleCharge"
+          >
+            OK
+          </div>
         </div>
       </div>
     </div>
@@ -70,7 +76,7 @@ export default defineComponent({
   },
   emits: ['update:isOpen', 'charge'],
   setup(props, { emit }) {
-    const { amount, addDigit, backspace, formatAmount } = useKeyboardInput({
+    const { amount, addDigit, backspace, formatAmount, isValidAmount } = useKeyboardInput({
       mode: props.mode
     });
 
@@ -80,6 +86,8 @@ export default defineComponent({
 
     const handleCharge = () => {
       if (!amount.value) return;
+      if (props.mode === 'restricted' && !isValidAmount.value) return;
+      
       const numericAmount = parseFloat(amount.value) / 100;
       emit('charge', numericAmount);
       handleClose();
@@ -93,7 +101,8 @@ export default defineComponent({
       handleClose,
       handleCharge,
       closeOutline,
-      backspaceOutline
+      backspaceOutline,
+      isValidAmount
     };
   }
 });
@@ -102,4 +111,14 @@ export default defineComponent({
 <style scoped>
 @import './styles/modal.css';
 @import './styles/keyboard.css';
+
+.amount-label.invalid .amount-value {
+  color: #dc3545;
+}
+
+.ok-cell.invalid {
+  background-color: #dc3545;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
 </style> 
