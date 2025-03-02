@@ -9,9 +9,14 @@ interface KeyboardConfig {
 
 export function useKeyboardInput(config: KeyboardConfig) {
   const amount: Ref<string> = ref("");
-  const maxLength = 10;
+  const maxLength = 20;
 
   const isValidInput = (currentValue: string, newDigit: string): boolean => {
+    // prevent leading zeros
+    if (currentValue === "" && (newDigit === "0" || newDigit === "00")) {
+      return false;
+    }
+
     if (config.mode === "free") return true;
 
     //  restricted mode (only numbers ending in 0 or 5)
