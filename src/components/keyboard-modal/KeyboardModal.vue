@@ -112,6 +112,28 @@ export default defineComponent({
 @import './styles/modal.css';
 @import './styles/keyboard.css';
 
+.keyboard-modal {
+  --width: 80%;
+  --height: 95%;
+  --background: transparent;
+  --backdrop-opacity: 0.5;
+  --border-radius: 8px;
+  --box-shadow: none;
+}
+
+.keyboard-modal::part(content) {
+  border: none;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.modal-container {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
 .amount-label.invalid .amount-value {
   color: #dc3545;
 }
