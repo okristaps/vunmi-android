@@ -1,4 +1,5 @@
 import { ref, computed } from "vue";
+import Big from "big.js";
 
 export function useKeyboardInput(config) {
   const amount = ref("");
@@ -36,8 +37,12 @@ export function useKeyboardInput(config) {
 
   const formatAmount = (value) => {
     if (!value) return "0.00";
-    const numericValue = parseFloat(value) / 100;
-    return numericValue.toFixed(2);
+    try {
+      const numericValue = new Big(value).div(100);
+      return numericValue.toFixed(2);
+    } catch (error) {
+      return "0.00";
+    }
   };
 
   const isValidAmount = computed(() => {
@@ -46,6 +51,11 @@ export function useKeyboardInput(config) {
     return cents.endsWith("0") || cents.endsWith("5");
   });
 
+  const getNumericAmount = () => {
+    if (!amount.value) return new Big(0);
+    return new Big(amount.value).div(100);
+  };
+
   return {
     amount,
     addDigit,
@@ -53,5 +63,6 @@ export function useKeyboardInput(config) {
     backspace,
     formatAmount,
     isValidAmount,
+    getNumericAmount,
   };
 }

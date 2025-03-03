@@ -76,7 +76,7 @@ export default defineComponent({
   },
   emits: ['update:isOpen', 'charge'],
   setup(props, { emit }) {
-    const { amount, addDigit, backspace, formatAmount, isValidAmount } = useKeyboardInput({
+    const { amount, addDigit, backspace, formatAmount, isValidAmount, getNumericAmount } = useKeyboardInput({
       mode: props.mode
     });
 
@@ -88,8 +88,8 @@ export default defineComponent({
       if (!amount.value) return;
       if (props.mode === 'restricted' && !isValidAmount.value) return;
       
-      const numericAmount = parseFloat(amount.value) / 100;
-      emit('charge', numericAmount);
+      const numericAmount = getNumericAmount();
+      emit('charge', numericAmount.toNumber());
       handleClose();
     };
 
