@@ -56,6 +56,7 @@ import { IonModal, IonIcon } from '@ionic/vue';
 import { closeOutline, backspaceOutline } from 'ionicons/icons';
 import { useKeyboardInput } from './composables/useKeyboardInput';
 import { computed, defineComponent } from 'vue';
+import logger from '@/utils/logger';
 
 export default defineComponent({
   name: 'KeyboardModal',
@@ -82,13 +83,24 @@ export default defineComponent({
 
     const formattedAmount = computed(() => formatAmount(amount.value));
 
-    const handleClose = () => emit('update:isOpen', false);
+    const handleClose = () => {
+      logger.debug('Modal closing');
+      emit('update:isOpen', false);
+    };
 
     const handleCharge = () => {
-      if (!amount.value) return;
-      if (props.mode === 'restricted' && !isValidAmount.value) return;
+      if (!amount.value) {
+        logger.debug('No amount entered');
+        return;
+      }
+      
+      if (props.mode === 'restricted' && !isValidAmount.value) {
+        logger.debug('Invalid amount in restricted mode:', amount.value);
+        return;
+      }
       
       const numericAmount = getNumericAmount();
+      logger.log('Processing charge:', numericAmount.toString());
       emit('charge', numericAmount.toNumber());
       handleClose();
     };

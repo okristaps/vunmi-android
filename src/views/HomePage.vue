@@ -25,10 +25,19 @@
           </span>
         </p>
         <div class="button-container">
-          <ion-button @click="printHelloWorld" class="print-btn">
-            Print "Hello World"
+          <ion-button 
+            @click="printHelloWorld" 
+            class="print-btn"
+            :disabled="isPrinting"
+          >
+            <ion-spinner v-if="isPrinting" name="dots"></ion-spinner>
+            <span v-else>"Spied šito!"</span>
           </ion-button>
-          <ion-button @click="goToPrintAmount" class="print-btn">
+          <ion-button 
+            @click="goToPrintAmount" 
+            class="print-btn"
+            :disabled="isPrinting"
+          >
             Print Amount
           </ion-button>
         </div>
@@ -39,13 +48,23 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton } from '@ionic/vue'
+import { 
+  IonContent, 
+  IonHeader, 
+  IonPage, 
+  IonTitle, 
+  IonToolbar, 
+  IonButton,
+  IonSpinner 
+} from '@ionic/vue'
 import { SunmiPrinter } from '@kduma-autoid/capacitor-sunmi-printer'
 import { useRouter } from 'vue-router'
+import logger from '@/utils/logger.js'
 
 const router = useRouter()
 const printerConnected = ref(false)
 const connectionError = ref('')
+const isPrinting = ref(false)
 
 const goToPrintAmount = () => {
   router.push('/print-amount')
@@ -55,19 +74,25 @@ async function bindPrinterService() {
   try {
     await SunmiPrinter.bindService()
     printerConnected.value = true
-    console.log("Printer service bound successfully")
+    logger.log("Printer connected")
   } catch (error) {
     connectionError.value = error.message || 'Unknown error'
-    console.error("Error binding to printer service:", error)
+    logger.error("Printer connection failed:", error)
   }
 }
 
 async function printHelloWorld() {
+  if (isPrinting.value) return;
+  
   try {
-    await SunmiPrinter.printText({ text: "Hello World" })
-    console.log("Printed: Hello World")
+    isPrinting.value = true
+    await SunmiPrinter.printText({ text: "Spied šito!" })
+    logger.log("Print successful")
   } catch (error) {
-    console.error("Error printing text:", error)
+    logger.error("Print failed:", error)
+    connectionError.value = error.message || 'Print failed'
+  } finally {
+    isPrinting.value = false
   }
 }
 
@@ -119,6 +144,7 @@ onMounted(() => {
   --padding-end: 24px;
   font-size: 1rem;
   text-transform: none;
+  min-width: 200px;
 }
 
 .button-container {
@@ -127,5 +153,9 @@ onMounted(() => {
   gap: 12px;
   width: 100%;
   max-width: 300px;
+}
+
+ion-spinner {
+  margin: 0 auto;
 }
 </style>
