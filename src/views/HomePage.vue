@@ -60,6 +60,8 @@ async function bindPrinterService() {
 
 async function printHelloWorld() {
   try {
+    const width = 44;
+    const line = "_".repeat(width) + "\n"
     SunmiPrinter.enterPrinterBuffer();
 
     //title
@@ -75,22 +77,25 @@ async function printHelloWorld() {
     SunmiPrinter.setBold({ enable: false });
     SunmiPrinter.setFontSize({ size: 25, });
     SunmiPrinter.printText({ text: "Some Random Address 12, Riga, Latvia LV-1035 \n" });
-    SunmiPrinter.printText({ text: "VAT No. 123.456.789\n" });
-    SunmiPrinter.printText({ text: "___________________________________________\n\n" });
+    SunmiPrinter.printText({ text: "VAT No. 123.456.789 \n" });
+    SunmiPrinter.setAlignment({ alignment: AlignmentModeEnum.LEFT });
+    SunmiPrinter.printText({ text: "\nSeller: John Doe\n" });
+    SunmiPrinter.printText({ text: line });
 
-    const productName = "Product name";
-const price = "$10.00";
+    // print product name and price
+    SunmiPrinter.printColumnsString({
+      lines: [
+        { text: "Product 1", proportion: 3, align: AlignmentModeEnum.LEFT },
+        { text: "$10.00", proportion: 1, align: AlignmentModeEnum.RIGHT }
+      ]
+    });
 
-
-const lineWidth = 44;
-
-const spacesNeeded = lineWidth - productName.length - price.length;
-
-
-const line = productName + " ".repeat(spacesNeeded) + price;
-
-
- SunmiPrinter.printText({text:line});
+    SunmiPrinter.printColumnsString({
+      lines: [
+        { text: "Product 2asdasdasdasdasdskjahsdkjashdkjashdkjashdkjashdkjashdadas", proportion: 3, align: AlignmentModeEnum.LEFT },
+        { text: "$99990.00", proportion: 1, align: AlignmentModeEnum.RIGHT }
+      ]
+    });
 
     SunmiPrinter.cutPaper(); 
 
