@@ -69,34 +69,100 @@ async function printHelloWorld() {
     SunmiPrinter.setBold({ enable: true });
     SunmiPrinter.setFontSize({ size: 80 });
     SunmiPrinter.setAlignment({ alignment: AlignmentModeEnum.CENTER });
-    SunmiPrinter.printText({ text: `VUNMISHOP \n` });
+    SunmiPrinter.printText({ text: `VUNMISHOP` });
+    SunmiPrinter.printText({ text: "\n" });
 
     //shop name and address
     SunmiPrinter.setFontSize({ size: 30, });
-    SunmiPrinter.printText({ text: "Vunmi Shop Test \n" });
+    SunmiPrinter.printText({ text: "Vunmi Shop Test" });
+    SunmiPrinter.printText({ text: "\n" });
     SunmiPrinter.setBold({ enable: false });
     SunmiPrinter.setFontSize({ size: 25, });
     SunmiPrinter.printText({ text: "Some Random Address 12, Riga, Latvia LV-1035 \n" });
-    SunmiPrinter.printText({ text: "VAT No. 123.456.789 \n" });
+    SunmiPrinter.printText({ text: "VAT No. 123.456.789\n" });
     SunmiPrinter.setAlignment({ alignment: AlignmentModeEnum.LEFT });
     SunmiPrinter.printText({ text: "\nSeller: John Doe\n" });
     SunmiPrinter.printText({ text: line });
+    SunmiPrinter.setFontSize({ size: 30, });
+
 
     // print product name and price
+    SunmiPrinter.printText({ text: "\n" });
     SunmiPrinter.printColumnsString({
       lines: [
         { text: "Product 1", proportion: 3, align: AlignmentModeEnum.LEFT },
         { text: "$10.00", proportion: 1, align: AlignmentModeEnum.RIGHT }
       ]
     });
-
+    SunmiPrinter.printText({ text: "\n" });
     SunmiPrinter.printColumnsString({
       lines: [
-        { text: "Product 2asdasdasdasdasdskjahsdkjashdkjashdkjashdkjashdkjashdadas", proportion: 3, align: AlignmentModeEnum.LEFT },
+        { text: "Product 2", proportion: 3, align: AlignmentModeEnum.LEFT },
         { text: "$99990.00", proportion: 1, align: AlignmentModeEnum.RIGHT }
       ]
     });
+    //seperator
+    SunmiPrinter.setFontSize({ size: 25, });
+    SunmiPrinter.printText({ text: "\n" });
+    SunmiPrinter.printText({ text: line });
+    SunmiPrinter.printText({ text: "\n" });
 
+    //total sum
+    SunmiPrinter.setBold({ enable: true });
+    SunmiPrinter.setFontSize({ size: 35, });
+    SunmiPrinter.printColumnsString({
+      lines: [
+        { text: "Total Sum", proportion: 3, align: AlignmentModeEnum.LEFT },
+        { text: "$224.40", proportion: 1, align: AlignmentModeEnum.RIGHT }
+      ]
+    });
+
+    //tax and other info
+    SunmiPrinter.setBold({ enable: false });
+    SunmiPrinter.setFontSize({ size: 30, })
+    SunmiPrinter.printText({ text: "\n" });
+    SunmiPrinter.printColumnsString({
+      lines: [
+        { text: "Tax, 21%", proportion: 3, align: AlignmentModeEnum.LEFT },
+        { text: "$23.00", proportion: 1, align: AlignmentModeEnum.RIGHT }
+      ]
+    });
+    SunmiPrinter.setFontSize({ size: 25, });
+    SunmiPrinter.printColumnsString({
+      lines: [
+        { text: "Smth???", proportion: 3, align: AlignmentModeEnum.LEFT },
+        { text: "$140.00", proportion: 1, align: AlignmentModeEnum.RIGHT }
+      ]
+    });
+    SunmiPrinter.printColumnsString({
+      lines: [
+        { text: "22???", proportion: 3, align: AlignmentModeEnum.LEFT },
+        { text: "$35.00", proportion: 1, align: AlignmentModeEnum.RIGHT }
+      ]
+    });
+
+    //seperator
+    SunmiPrinter.printText({ text: "\n" });
+    SunmiPrinter.printText({ text: line });
+    SunmiPrinter.printText({ text: "\n" });
+    //website
+    SunmiPrinter.setAlignment({ alignment: AlignmentModeEnum.CENTER });
+    SunmiPrinter.printText({ text: `www.vunmi.lv` });
+    SunmiPrinter.printText({ text: "\n" });
+
+
+    SunmiPrinter.printBarCode({content: "1234567890", symbology: BarcodeSymbologyEnum.CODE128, height: 50, width: 2, text_position: BarcodeTextPositionEnum.BELOW})
+
+//date and number of the receipt
+    SunmiPrinter.printColumnsString({
+      lines: [
+        { text: "2/11/25 20:25", proportion: 3, align: AlignmentModeEnum.LEFT },
+        { text: "#11-1005", proportion: 1, align: AlignmentModeEnum.RIGHT }
+      ]
+    });
+
+
+    SunmiPrinter.printText({ text: "\n" });
     SunmiPrinter.cutPaper(); 
 
     SunmiPrinter.exitPrinterBuffer();
