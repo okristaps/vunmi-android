@@ -33,8 +33,9 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonSpinner } from "@ionic/vue";
 import { useRouter } from "vue-router";
-import { bindPrinterService, printReceipt, } from "@/services/printerService";
+import printerService from "@/services/printerService";
 
 const router = useRouter();
 const printerConnected = ref(false);
@@ -93,7 +94,7 @@ const saleData = {
 const handlePrintClick = async () => {
   isPrinting.value = true;
   try {
-    await printReceipt(saleData);
+    await printerService.printReceipt(saleData);
   } catch (error) {
     console.error("Error printing receipt:", error);
   } finally {
@@ -102,7 +103,7 @@ const handlePrintClick = async () => {
 };
 
 onMounted(async () => {
-  printerConnected.value = await bindPrinterService();
+  printerConnected.value = await printerService.connect();
 });
 </script>
 
