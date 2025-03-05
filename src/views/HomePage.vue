@@ -20,7 +20,7 @@
           <span v-if="connectionError" class="error"> Error: {{ connectionError }} </span>
         </p>
         <div class="button-container">
-          <ion-button @click="printHelloWorld" class="print-btn" :disabled="isPrinting">
+          <ion-button @click="handlePrintClick" class="print-btn" :disabled="isPrinting">
             <ion-spinner v-if="isPrinting" name="dots"></ion-spinner>
             <span v-else>"Spied šito!"</span>
           </ion-button>
@@ -33,10 +33,8 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonSpinner } from "@ionic/vue";
-import { AlignmentModeEnum, BarcodeSymbologyEnum, BarcodeTextPositionEnum, SunmiPrinter } from "@kduma-autoid/capacitor-sunmi-printer";
 import { useRouter } from "vue-router";
-import logger from "@/utils/logger.js";
+import { bindPrinterService, printReceipt, } from "@/services/printerService";
 
 const router = useRouter();
 const printerConnected = ref(false);
@@ -47,133 +45,64 @@ const goToPrintAmount = () => {
   router.push("/print-amount");
 };
 
-async function bindPrinterService() {
+const saleData = {
+  sale: {
+    id: 32,
+    created_at: "2025-03-04T11:32:42.412Z",
+    receipt_number: "A4-32",
+    total_money: 21.5,
+    total_tax: 0.56,
+    receipt_date: "2025-03-04T11:32:42.412Z",
+    user_id: 1,
+    pos_id: 4,
+    shift_id: 13,
+    user_name: "Max"
+  },
+  sale_items: [
+    {
+      id: 35,
+      sale_id: 32,
+      name: "Apfelmost 5 Liter pasteurisiert",
+      product_id: 6,
+      quantity: 1,
+      price: 15,
+      total_money: 0
+    },
+    {
+      id: 36,
+      sale_id: 32,
+      name: "Apfelringli mit Schale 100g",
+      product_id: 5,
+      quantity: 1,
+      price: 6.5,
+      total_money: 0
+    }
+  ],
+  sale_payments: [
+    {
+      id: 45,
+      sale_id: 32,
+      name: "cash",
+      type: "cash",
+      amount: 21.5,
+      paid_at: "2025-03-04T11:32:42.412Z"
+    }
+  ]
+};
+
+const handlePrintClick = async () => {
+  isPrinting.value = true;
   try {
-    await SunmiPrinter.bindService();
-    printerConnected.value = true;
-    logger.log("Printer connected");
+    await printReceipt(saleData);
   } catch (error) {
-    connectionError.value = error.message || "Unknown error";
-    logger.error("Printer connection failed:", error);
+    console.error("Error printing receipt:", error);
+  } finally {
+    isPrinting.value = false;
   }
-}
+};
 
-async function printHelloWorld() {
-  try {
-    const width = 44;
-    const line = "_".repeat(width) + "\n"
-    SunmiPrinter.enterPrinterBuffer();
-
-    //title
-    SunmiPrinter.setAntiWhitePrintStyle({ enable: false });
-    SunmiPrinter.setBold({ enable: true });
-    SunmiPrinter.setFontSize({ size: 80 });
-    SunmiPrinter.setAlignment({ alignment: AlignmentModeEnum.CENTER });
-    SunmiPrinter.printText({ text: `VUNMISHOP` });
-    SunmiPrinter.printText({ text: "\n" });
-
-    //shop name and address
-    SunmiPrinter.setFontSize({ size: 30, });
-    SunmiPrinter.printText({ text: "Vunmi Shop Test" });
-    SunmiPrinter.printText({ text: "\n" });
-    SunmiPrinter.setBold({ enable: false });
-    SunmiPrinter.setFontSize({ size: 25, });
-    SunmiPrinter.printText({ text: "Some Random Address 12, Riga, Latvia LV-1035 \n" });
-    SunmiPrinter.printText({ text: "VAT No. 123.456.789\n" });
-    SunmiPrinter.setAlignment({ alignment: AlignmentModeEnum.LEFT });
-    SunmiPrinter.printText({ text: "\nSeller: John Doe\n" });
-    SunmiPrinter.printText({ text: line });
-    SunmiPrinter.setFontSize({ size: 30, });
-
-
-    // print product name and price
-    SunmiPrinter.printText({ text: "\n" });
-    SunmiPrinter.printColumnsString({
-      lines: [
-        { text: "Product 1", proportion: 3, align: AlignmentModeEnum.LEFT },
-        { text: "$10.00", proportion: 1, align: AlignmentModeEnum.RIGHT }
-      ]
-    });
-    SunmiPrinter.printText({ text: "\n" });
-    SunmiPrinter.printColumnsString({
-      lines: [
-        { text: "Product 2", proportion: 3, align: AlignmentModeEnum.LEFT },
-        { text: "$99990.00", proportion: 1, align: AlignmentModeEnum.RIGHT }
-      ]
-    });
-    //seperator
-    SunmiPrinter.setFontSize({ size: 25, });
-    SunmiPrinter.printText({ text: "\n" });
-    SunmiPrinter.printText({ text: line });
-    SunmiPrinter.printText({ text: "\n" });
-
-    //total sum
-    SunmiPrinter.setBold({ enable: true });
-    SunmiPrinter.setFontSize({ size: 35, });
-    SunmiPrinter.printColumnsString({
-      lines: [
-        { text: "Total Sum", proportion: 3, align: AlignmentModeEnum.LEFT },
-        { text: "$224.40", proportion: 1, align: AlignmentModeEnum.RIGHT }
-      ]
-    });
-
-    //tax and other info
-    SunmiPrinter.setBold({ enable: false });
-    SunmiPrinter.setFontSize({ size: 30, })
-    SunmiPrinter.printText({ text: "\n" });
-    SunmiPrinter.printColumnsString({
-      lines: [
-        { text: "Tax, 21%", proportion: 3, align: AlignmentModeEnum.LEFT },
-        { text: "$23.00", proportion: 1, align: AlignmentModeEnum.RIGHT }
-      ]
-    });
-    SunmiPrinter.setFontSize({ size: 25, });
-    SunmiPrinter.printColumnsString({
-      lines: [
-        { text: "Smth???", proportion: 3, align: AlignmentModeEnum.LEFT },
-        { text: "$140.00", proportion: 1, align: AlignmentModeEnum.RIGHT }
-      ]
-    });
-    SunmiPrinter.printColumnsString({
-      lines: [
-        { text: "22???", proportion: 3, align: AlignmentModeEnum.LEFT },
-        { text: "$35.00", proportion: 1, align: AlignmentModeEnum.RIGHT }
-      ]
-    });
-
-    //seperator
-    SunmiPrinter.printText({ text: "\n" });
-    SunmiPrinter.printText({ text: line });
-    SunmiPrinter.printText({ text: "\n" });
-    //website
-    SunmiPrinter.setAlignment({ alignment: AlignmentModeEnum.CENTER });
-    SunmiPrinter.printText({ text: `www.vunmi.lv` });
-    SunmiPrinter.printText({ text: "\n" });
-
-
-    SunmiPrinter.printBarCode({content: "1234567890", symbology: BarcodeSymbologyEnum.CODE128, height: 50, width: 2, text_position: BarcodeTextPositionEnum.BELOW})
-
-//date and number of the receipt
-    SunmiPrinter.printColumnsString({
-      lines: [
-        { text: "2/11/25 20:25", proportion: 3, align: AlignmentModeEnum.LEFT },
-        { text: "#11-1005", proportion: 1, align: AlignmentModeEnum.RIGHT }
-      ]
-    });
-
-
-    SunmiPrinter.printText({ text: "\n" });
-    SunmiPrinter.cutPaper(); 
-
-    SunmiPrinter.exitPrinterBuffer();
-    console.log("Printed: Hello World");
-  } catch (error) {
-    console.error("Error printing text:", error);
-  }
-}
-
-onMounted(() => {
-  bindPrinterService();
+onMounted(async () => {
+  printerConnected.value = await bindPrinterService();
 });
 </script>
 
