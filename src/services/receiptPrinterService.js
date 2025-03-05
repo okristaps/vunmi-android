@@ -6,10 +6,11 @@ import {
   SunmiPrinter,
 } from "@kduma-autoid/capacitor-sunmi-printer";
 import logger from "@/utils/logger.js";
-import logoImage from "../assets/logoy.png";
+import logoImage from "../assets/logo.png";
+import "../assets/Oswald-Regular.ttf";
 import { convertImageToBase64 } from "../utils/parseImageToBase64";
 
-class PrinterService {
+class ReceiptPrinterService {
   constructor() {
     this.isConnected = false;
   }
@@ -51,6 +52,7 @@ class PrinterService {
     SunmiPrinter.printText({ text: "\n" });
 
     //shop name and address
+    SunmiPrinter.setFontName({ typeface: "Oswald-Regular" });
     SunmiPrinter.setFontSize({ size: 27 });
     SunmiPrinter.printText({ text: "Vunmi Shop Test" });
     SunmiPrinter.printText({ text: "\n" });
@@ -61,7 +63,7 @@ class PrinterService {
     SunmiPrinter.setAlignment({ alignment: AlignmentModeEnum.LEFT });
     SunmiPrinter.printText({ text: `\nSeller: ${user_name}\n` });
     SunmiPrinter.printText({ text: line });
-    SunmiPrinter.setFontSize({ size: 25 });
+    SunmiPrinter.setFontSize({ size: 20 });
   }
 
   async printItems(sale_items) {
@@ -78,7 +80,6 @@ class PrinterService {
       SunmiPrinter.printColumnsString({
         lines: [{ text: `${quantity}x CHF ${price.toFixed(2)}`, proportion: 3, align: AlignmentModeEnum.LEFT }],
       });
-      SunmiPrinter.printText({ text: "\n" });
     }
   }
 
@@ -204,5 +205,5 @@ class PrinterService {
   }
 }
 
-const printerService = new PrinterService();
+const printerService = new ReceiptPrinterService();
 export default printerService;

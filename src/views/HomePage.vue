@@ -35,7 +35,7 @@
 import { ref, onMounted } from "vue";
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonSpinner } from "@ionic/vue";
 import { useRouter } from "vue-router";
-import printerService from "@/services/printerService";
+import printerService from "@/services/ReceiptPrinterService";
 
 const router = useRouter();
 const printerConnected = ref(false);
