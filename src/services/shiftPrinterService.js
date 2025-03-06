@@ -1,14 +1,51 @@
 import { AlignmentModeEnum, SunmiPrinter } from "@kduma-autoid/capacitor-sunmi-printer";
 import logger from "@/utils/logger.js";
-
-const width = 48;
-const line = "_".repeat(width) + "\n";
+import { isBlock } from "typescript";
 
 class ShiftPrinterService {
   constructor() {
     this.isConnected = false;
+    this.width = 48;
+    this.line = "_".repeat(this.width) + "\n";
   }
 
+  // Utility methods for common printer operations
+  setFontStyle(size = 24, isBold = false, alignment = AlignmentModeEnum.LEFT) {
+    SunmiPrinter.setFontSize({ size });
+    SunmiPrinter.setBold({ enable: isBold });
+    SunmiPrinter.setAlignment({ alignment });
+  }
+
+  printLine() {
+    SunmiPrinter.setAlignment({ alignment: AlignmentModeEnum.CENTER });
+    SunmiPrinter.printText({ text: this.line });
+  }
+
+  printAmount(label, amount, isBold = false) {
+    if (isBold) SunmiPrinter.setBold({ enable: true });
+    SunmiPrinter.printColumnsString({
+      lines: [
+        { text: label, proportion: 2, align: AlignmentModeEnum.LEFT },
+        { text: `CHF ${amount.toFixed(2)}`, proportion: 1, align: AlignmentModeEnum.RIGHT },
+      ],
+    });
+    if (isBold) SunmiPrinter.setBold({ enable: false });
+  }
+
+  formatDate(date) {
+    return new Date(date)
+      .toLocaleString("de-CH", {
+        month: "2-digit",
+        day: "2-digit",
+        year: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      })
+      .replace(",", "");
+  }
+
+  // Connection management
   async connect() {
     try {
       await SunmiPrinter.bindService();
@@ -22,60 +59,41 @@ class ShiftPrinterService {
     }
   }
 
+  // Print section methods
   async printShiftHeader(shiftData) {
-    SunmiPrinter.setAlignment({ alignment: AlignmentModeEnum.CENTER });
-    SunmiPrinter.setFontSize({ size: 24 });
-
     // Title
-    SunmiPrinter.setBold({ enable: true });
-    SunmiPrinter.printText({ text: "Shift report\n" });
-    SunmiPrinter.setBold({ enable: false });
-
-    SunmiPrinter.printText({ text: "\n" });
+    this.setFontStyle(24, true, AlignmentModeEnum.CENTER);
+    SunmiPrinter.printText({ text: "Shift report\n\n" });
 
     // Basic info
-    SunmiPrinter.setAlignment({ alignment: AlignmentModeEnum.LEFT });
+    this.setFontStyle(24, false, AlignmentModeEnum.LEFT);
     SunmiPrinter.printText({ text: `Shift number: ${shiftData.shift_id}\n` });
     SunmiPrinter.printText({ text: `POS: ${shiftData.pos_name}\n` });
-    // SunmiPrinter.printText({ text: "\n" });
-    SunmiPrinter.setAlignment({ alignment: AlignmentModeEnum.CENTER });
-    SunmiPrinter.printText({ text: line });
+    this.printLine();
     SunmiPrinter.printText({ text: "\n" });
-    // SunmiPrinter.printText({ text: "\n" });
+
     // Shift opened info
-    SunmiPrinter.setAlignment({ alignment: AlignmentModeEnum.LEFT });
+    this.setFontStyle(24, false, AlignmentModeEnum.LEFT);
     SunmiPrinter.printText({ text: "Shift opened:\n" });
     SunmiPrinter.printText({ text: shiftData.opener_name });
 
-    // Format and print the opening time on the right
-    const openDate = new Date(shiftData.opened_at);
-    const formattedOpenDate = openDate
-      .toLocaleString("de-CH", {
-        month: "2-digit",
-        day: "2-digit",
-        year: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      })
-      .replace(",", "");
-
+    // Opening time
     SunmiPrinter.printColumnsString({
       lines: [
         { text: "", proportion: 2, align: AlignmentModeEnum.LEFT },
-        { text: formattedOpenDate, proportion: 1, align: AlignmentModeEnum.RIGHT },
+        { text: this.formatDate(shiftData.opened_at), proportion: 1, align: AlignmentModeEnum.RIGHT },
       ],
     });
-    SunmiPrinter.setAlignment({ alignment: AlignmentModeEnum.CENTER });
-    SunmiPrinter.printText({ text: line });
+    this.printLine();
   }
 
   async printCashDrawerSection(shiftData) {
     SunmiPrinter.printText({ text: "\n" });
-    SunmiPrinter.setAlignment({ alignment: AlignmentModeEnum.CENTER });
+    this.setFontStyle(24, false, AlignmentModeEnum.CENTER);
     SunmiPrinter.printText({ text: "Cash drawer\n" });
-    SunmiPrinter.printText({ text: line });
+    this.printLine();
     SunmiPrinter.printText({ text: "\n" });
+
     const cashItems = [
       { label: "Starting cash", amount: 0 },
       { label: "Cash payments", amount: shiftData.total_cash },
@@ -84,96 +102,74 @@ class ShiftPrinterService {
       { label: "Expected cash amount", amount: shiftData.total_balance, isBold: true },
     ];
 
+    this.setFontStyle(24, false, AlignmentModeEnum.LEFT);
     for (const item of cashItems) {
-      if (item.isBold) {
-        SunmiPrinter.setBold({ enable: true });
-      }
-      SunmiPrinter.printColumnsString({
-        lines: [
-          { text: item.label, proportion: 2, align: AlignmentModeEnum.LEFT },
-          { text: `CHF ${item.amount.toFixed(2)}`, proportion: 1, align: AlignmentModeEnum.RIGHT },
-        ],
-      });
-      if (item.isBold) {
-        SunmiPrinter.setBold({ enable: false });
-      }
+      this.printAmount(item.label, item.amount, item.isBold);
     }
 
-    SunmiPrinter.printText({ text: line });
+    this.printLine();
     SunmiPrinter.printText({ text: "\n" });
   }
 
   async printSalesSummary(shiftData) {
+    this.setFontStyle(24, false, AlignmentModeEnum.CENTER);
     SunmiPrinter.printText({ text: "Sales summary\n" });
-
-    SunmiPrinter.printText({ text: line });
+    this.printLine();
     SunmiPrinter.printText({ text: "\n" });
+
     const salesItems = [
-      { label: "Gross sales", amount: shiftData.total_gross },
+      { label: "Gross sales", amount: shiftData.total_gross, isBold: true },
+      { label: "Refunds", amount: 0 },
+      { label: "Discounts", amount: 0 },
       { label: "Net sales", amount: shiftData.total_gross - shiftData.total_tax, isBold: true },
       { label: "Card", amount: shiftData.total_card },
       { label: "Cash", amount: shiftData.total_cash },
       { label: "Taxes", amount: shiftData.total_tax },
     ];
 
+    this.setFontStyle(24, false, AlignmentModeEnum.LEFT);
     for (const item of salesItems) {
-      if (item.isBold) {
-        SunmiPrinter.setBold({ enable: true });
-      }
-      SunmiPrinter.printColumnsString({
-        lines: [
-          { text: item.label, proportion: 2, align: AlignmentModeEnum.LEFT },
-          { text: `CHF ${item.amount.toFixed(2)}`, proportion: 1, align: AlignmentModeEnum.RIGHT },
-        ],
-      });
-      if (item.isBold) {
-        SunmiPrinter.setBold({ enable: false });
-      }
+      this.printAmount(item.label, item.amount, item.isBold);
     }
-    SunmiPrinter.printText({ text: line });
+    this.printLine();
   }
 
   async printFooter(shiftData) {
-    // Print report date
-    const reportDate = new Date(shiftData.report_print_date);
-    const formattedReportDate = reportDate
-      .toLocaleString("de-CH", {
-        month: "2-digit",
-        day: "2-digit",
-        year: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      })
-      .replace(",", "");
+    SunmiPrinter.printText({ text: "\n" });
+    this.printLine();
 
-    SunmiPrinter.setAlignment({ alignment: AlignmentModeEnum.RIGHT });
-    SunmiPrinter.printText({ text: formattedReportDate });
+    // Print report date
+    this.setFontStyle(24, false, AlignmentModeEnum.LEFT);
+    SunmiPrinter.printText({ text: `Report date: ${this.formatDate(shiftData.report_print_date)}\n` });
+
+    // Print current time
+    const now = new Date();
+    this.setFontStyle(24, false, AlignmentModeEnum.LEFT);
+    SunmiPrinter.printText({ text: `Print time: ${this.formatDate(now)}` });
   }
 
+  // Main print method
   async printShiftReport(shiftData) {
     try {
       if (!shiftData) {
-        console.error("Invalid shift data provided");
-        return;
+        throw new Error("Invalid shift data provided");
       }
 
       SunmiPrinter.enterPrinterBuffer();
 
-      // Print each section
       await this.printShiftHeader(shiftData);
       await this.printCashDrawerSection(shiftData);
       await this.printSalesSummary(shiftData);
       await this.printFooter(shiftData);
 
-      // Final formatting
       SunmiPrinter.printText({ text: "\n" });
       SunmiPrinter.cutPaper();
       SunmiPrinter.exitPrinterBuffer();
 
-      console.log("Shift report printed successfully");
+      logger.log("Shift report printed successfully");
     } catch (error) {
-      console.error("Error printing shift report:", error);
+      logger.error("Error printing shift report:", error);
+      throw error;
     }
   }
 }
