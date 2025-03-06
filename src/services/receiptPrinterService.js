@@ -46,6 +46,7 @@ class ReceiptPrinterService {
     const line = "_".repeat(width) + "\n";
 
     SunmiPrinter.setAntiWhitePrintStyle({ enable: false });
+    SunmiPrinter.setAlignment({ alignment: AlignmentModeEnum.CENTER });
     await this.printLogo();
 
     SunmiPrinter.setBold({ enable: true });

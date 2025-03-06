@@ -20,10 +20,25 @@
           <span v-if="connectionError" class="error"> Error: {{ connectionError }} </span>
         </p>
         <div class="button-container">
-          <ion-button @click="handlePrintClick" class="print-btn" :disabled="isPrinting">
-            <ion-spinner v-if="isPrinting" name="dots"></ion-spinner>
-            <span v-else>"Spied šito!"</span>
+          <ion-button
+            @click="handlePrintClick"
+            class="print-btn"
+            :disabled="!printerConnected || isPrinting"
+          >
+            <ion-spinner v-if="isPrinting" name="crescent"></ion-spinner>
+            <span v-else>Print Receipt</span>
           </ion-button>
+
+          <ion-button
+            @click="handleShiftPrintClick"
+            class="print-btn"
+            :disabled="!printerConnected || isShiftPrinting"
+            color="secondary"
+          >
+            <ion-spinner v-if="isShiftPrinting" name="crescent"></ion-spinner>
+            <span v-else>Print Shift Report</span>
+          </ion-button>
+
           <ion-button @click="goToPrintAmount" class="print-btn" :disabled="isPrinting"> Print Amount </ion-button>
         </div>
       </div>
@@ -36,11 +51,13 @@ import { ref, onMounted } from "vue";
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonSpinner } from "@ionic/vue";
 import { useRouter } from "vue-router";
 import printerService from "@/services/ReceiptPrinterService";
+import shiftPrinterService from "@/services/shiftPrinterService";
 
 const router = useRouter();
 const printerConnected = ref(false);
 const connectionError = ref("");
 const isPrinting = ref(false);
+const isShiftPrinting = ref(false);
 
 const goToPrintAmount = () => {
   router.push("/print-amount");
@@ -91,6 +108,41 @@ const saleData = {
   ]
 };
 
+// Sample shift data
+const shiftData = {
+  shift_id: 1,
+  pos_name: "Pos auto 1",
+  opened_at: "2024-01-01T01:00",
+  closed_at: "2024-01-01T02:00",
+  opener_name: "Janis",
+  closer_name: "Janis",
+  total_sales_count: 87,
+  total_gross: 1203,
+  total_card: 1000,
+  total_cash: 203,
+  total_tax: 23,
+  total_money_in: 100,
+  total_money_out: 100,
+  total_balance: 200,
+  total_money_in_info: [
+    {
+      type: "cash",
+      amount: 100,
+      comment: "",
+      created_at: "2024-01-01T01:00"
+    }
+  ],
+  total_money_out_info: [
+    {
+      type: "cash",
+      amount: 100,
+      comment: "",
+      created_at: "2024-01-01T01:00"
+    }
+  ],
+  report_print_date: "2024-01-01T02:00"
+};
+
 const handlePrintClick = async () => {
   isPrinting.value = true;
   try {
@@ -102,8 +154,19 @@ const handlePrintClick = async () => {
   }
 };
 
+const handleShiftPrintClick = async () => {
+  isShiftPrinting.value = true;
+  try {
+    await shiftPrinterService.printShiftReport(shiftData);
+  } catch (error) {
+    console.error("Error printing shift report:", error);
+  } finally {
+    isShiftPrinting.value = false;
+  }
+};
+
 onMounted(async () => {
-  printerConnected.value = await printerService.connect();
+  printerConnected.value = await printerService.connect() && await shiftPrinterService.connect();
 });
 </script>
 
