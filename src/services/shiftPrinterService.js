@@ -1,6 +1,5 @@
 import { AlignmentModeEnum, SunmiPrinter } from "@kduma-autoid/capacitor-sunmi-printer";
 import logger from "@/utils/logger.js";
-import { isBlock } from "typescript";
 
 class ShiftPrinterService {
   constructor() {

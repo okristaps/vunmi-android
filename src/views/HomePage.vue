@@ -39,7 +39,17 @@
             <span v-else>Print Shift Report</span>
           </ion-button>
 
-          <ion-button @click="goToPrintAmount" class="print-btn" :disabled="isPrinting"> Print Amount </ion-button>
+          <ion-button @click="goToPrintAmount" class="print-btn" :disabled="isPrinting">
+            Print Amount
+          </ion-button>
+
+          <ion-button 
+            @click="goToLogin" 
+            class="print-btn" 
+            color="tertiary"
+          >
+            Enter PIN
+          </ion-button>
         </div>
       </div>
     </ion-content>
@@ -61,6 +71,10 @@ const isShiftPrinting = ref(false);
 
 const goToPrintAmount = () => {
   router.push("/print-amount");
+};
+
+const goToLogin = () => {
+  router.push("/login");
 };
 
 const saleData = {
