@@ -16,7 +16,7 @@
 
       <div class="amount-row">
         <div class="amount-label" :class="{ 'invalid': !isValidAmount && mode === 'restricted' }">
-          <span class="amount-prefix">CHF</span>
+          <span class="amount-prefix" v-if="mode !== 'int'">CHF</span>
           <span class="amount-value">{{ formattedAmount }}</span>
         </div>
       </div>
@@ -72,7 +72,7 @@ export default defineComponent({
     mode: {
       type: String,
       default: 'free',
-      validator: (value) => ['free', 'restricted'].includes(value)
+      validator: (value) => ['free', 'restricted', 'int'].includes(value)
     }
   },
   emits: ['update:isOpen', 'charge'],
@@ -81,7 +81,12 @@ export default defineComponent({
       mode: props.mode
     });
 
-    const formattedAmount = computed(() => formatAmount(amount.value));
+    const formattedAmount = computed(() => {
+      if (props.mode === 'int') {
+        return amount.value || '0';
+      }
+      return formatAmount(amount.value);
+    });
 
     const handleClose = () => {
       logger.debug('Modal closing');

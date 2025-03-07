@@ -21,6 +21,10 @@
         <ion-button @click="openRestrictedKeyboard" class="print-btn restricted">
           Enter Amount (0.05 steps)
         </ion-button>
+
+        <ion-button @click="openIntegerKeyboard" class="print-btn integer">
+          Enter Integer
+        </ion-button>
       </div>
 
       <keyboard-modal
@@ -32,6 +36,12 @@
       <keyboard-modal
         v-model:is-open="isRestrictedKeyboardOpen"
         mode="restricted"
+        @charge="handleCharge"
+      />
+
+      <keyboard-modal
+        v-model:is-open="isIntegerKeyboardOpen"
+        mode="int"
         @charge="handleCharge"
       />
     </ion-content>
@@ -58,6 +68,7 @@ export default defineComponent({
   setup() {
     const isFreeKeyboardOpen = ref(false);
     const isRestrictedKeyboardOpen = ref(false);
+    const isIntegerKeyboardOpen = ref(false);
 
     const openFreeKeyboard = () => {
       isFreeKeyboardOpen.value = true;
@@ -65,6 +76,10 @@ export default defineComponent({
 
     const openRestrictedKeyboard = () => {
       isRestrictedKeyboardOpen.value = true;
+    };
+
+    const openIntegerKeyboard = () => {
+      isIntegerKeyboardOpen.value = true;
     };
 
     const handleCharge = async (amount) => {
@@ -79,8 +94,10 @@ export default defineComponent({
     return {
       isFreeKeyboardOpen,
       isRestrictedKeyboardOpen,
+      isIntegerKeyboardOpen,
       openFreeKeyboard,
       openRestrictedKeyboard,
+      openIntegerKeyboard,
       handleCharge
     };
   }
@@ -115,5 +132,9 @@ export default defineComponent({
 
 .print-btn.restricted {
   --background: #27ae60;
+}
+
+.print-btn.integer {
+  --background: #9c27b0;
 }
 </style> 

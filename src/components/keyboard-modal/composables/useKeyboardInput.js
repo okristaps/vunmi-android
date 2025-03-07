@@ -16,6 +16,10 @@ export function useKeyboardInput(config) {
 
   const addDigit = (digit) => {
     if (digit === "00") {
+      if (config.mode === "int") {
+        logger.debug("Double zero not allowed in integer mode");
+        return;
+      }
       if (amount.value.length + 2 <= maxLength && isValidInput(amount.value, "00")) {
         amount.value += digit;
         logger.debug("Added 00:", amount.value);
@@ -55,6 +59,8 @@ export function useKeyboardInput(config) {
 
   const isValidAmount = computed(() => {
     if (!amount.value || config.mode === "free") return true;
+    if (config.mode === "int") return true;
+
     const cents = amount.value.slice(-2);
     const isValid = cents.endsWith("0") || cents.endsWith("5");
     if (!isValid) {
@@ -65,6 +71,9 @@ export function useKeyboardInput(config) {
 
   const getNumericAmount = () => {
     if (!amount.value) return new Big(0);
+    if (config.mode === "int") {
+      return new Big(amount.value);
+    }
     return new Big(amount.value).div(100);
   };
 

@@ -31,7 +31,6 @@
               @click="handleNumpadPress(num)"
               :class="{ 
                 'function-button': num === 'Clear', 
-                'empty': num === ' ' 
               }"
             >
               {{ num }}
