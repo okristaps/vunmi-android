@@ -25,6 +25,10 @@
         <ion-button @click="openIntegerKeyboard" class="print-btn integer">
           Enter Integer
         </ion-button>
+
+        <ion-button @click="openInitialValueKeyboard" class="print-btn initial">
+          Edit Amount (100.50)
+        </ion-button>
       </div>
 
       <keyboard-modal
@@ -42,6 +46,13 @@
       <keyboard-modal
         v-model:is-open="isIntegerKeyboardOpen"
         mode="int"
+        @charge="handleCharge"
+      />
+
+      <keyboard-modal
+        v-model:is-open="isInitialValueKeyboardOpen"
+        mode="free"
+        :initial-value="100.50"
         @charge="handleCharge"
       />
     </ion-content>
@@ -69,6 +80,7 @@ export default defineComponent({
     const isFreeKeyboardOpen = ref(false);
     const isRestrictedKeyboardOpen = ref(false);
     const isIntegerKeyboardOpen = ref(false);
+    const isInitialValueKeyboardOpen = ref(false);
 
     const openFreeKeyboard = () => {
       isFreeKeyboardOpen.value = true;
@@ -80,6 +92,10 @@ export default defineComponent({
 
     const openIntegerKeyboard = () => {
       isIntegerKeyboardOpen.value = true;
+    };
+
+    const openInitialValueKeyboard = () => {
+      isInitialValueKeyboardOpen.value = true;
     };
 
     const handleCharge = async (amount) => {
@@ -95,9 +111,11 @@ export default defineComponent({
       isFreeKeyboardOpen,
       isRestrictedKeyboardOpen,
       isIntegerKeyboardOpen,
+      isInitialValueKeyboardOpen,
       openFreeKeyboard,
       openRestrictedKeyboard,
       openIntegerKeyboard,
+      openInitialValueKeyboard,
       handleCharge
     };
   }
@@ -136,5 +154,9 @@ export default defineComponent({
 
 .print-btn.integer {
   --background: #9c27b0;
+}
+
+.print-btn.initial {
+  --background: #ff9800;
 }
 </style> 

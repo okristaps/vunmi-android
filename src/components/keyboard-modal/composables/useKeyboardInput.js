@@ -40,6 +40,16 @@ export function useKeyboardInput(config) {
     logger.debug("Amount cleared");
   };
 
+  const setAmount = (value) => {
+    if (config.mode === "int") {
+      amount.value = value.replace(/[^0-9]/g, "");
+    } else {
+      const numericValue = new Big(value).times(100).toString();
+      amount.value = numericValue.replace(/[^0-9]/g, "");
+    }
+    logger.debug("Amount set to:", amount.value);
+  };
+
   const backspace = () => {
     const oldValue = amount.value;
     amount.value = amount.value.slice(0, -1);
@@ -81,6 +91,7 @@ export function useKeyboardInput(config) {
     amount,
     addDigit,
     clearAmount,
+    setAmount,
     backspace,
     formatAmount,
     isValidAmount,

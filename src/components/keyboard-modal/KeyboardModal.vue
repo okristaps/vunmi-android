@@ -55,7 +55,7 @@
 import { IonModal, IonIcon } from '@ionic/vue';
 import { closeOutline, backspaceOutline } from 'ionicons/icons';
 import { useKeyboardInput } from './composables/useKeyboardInput';
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, watch } from 'vue';
 import logger from '@/utils/logger';
 
 export default defineComponent({
@@ -73,13 +73,23 @@ export default defineComponent({
       type: String,
       default: 'free',
       validator: (value) => ['free', 'restricted', 'int'].includes(value)
+    },
+    initialValue: {
+      type: [Number, String],
+      default: ''
     }
   },
   emits: ['update:isOpen', 'charge'],
   setup(props, { emit }) {
-    const { amount, addDigit, backspace, formatAmount, isValidAmount, getNumericAmount } = useKeyboardInput({
+    const { amount, addDigit, backspace, formatAmount, isValidAmount, getNumericAmount, setAmount } = useKeyboardInput({
       mode: props.mode
     });
+
+    watch(() => props.initialValue, (newValue) => {
+      if (newValue !== undefined && newValue !== '') {
+        setAmount(newValue.toString());
+      }
+    }, { immediate: true });
 
     const formattedAmount = computed(() => {
       if (props.mode === 'int') {
